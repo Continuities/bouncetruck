@@ -42,7 +42,7 @@ def onCook(scriptOp: scriptCHOP):
   if src is None:
     return
 
-  rgb = [255, 0, 0] # TODO: Generate from inputs
+  rgb = [0, 255, 0] # TODO: Generate from inputs
   energy = 1.0 # TODO: Generate from inputs
 
   numChannels = max(FIXTURE_ADDRS) + FIXTURE_CHANNELS - 1
