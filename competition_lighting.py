@@ -6,9 +6,9 @@ me - this DAT
 scriptOp - the OP which is cooking
 """
 
-FIXTURE_ADDRS = [1]        # DMX start address of each floodlight
-FIXTURE_CHANNELS = 4       # channels per fixture
-R, G, B, DIM = 0, 1, 2, 3  # offsets within a fixture; set DIM = None if no dimmer
+FIXTURE_ADDRS = [1]           # DMX start address of each floodlight
+FIXTURE_CHANNELS = 4          # channels per fixture
+R, G, B, DIM = 0, 1, 2, None  # offsets within a fixture; set DIM = None if no dimmer
 
 from typing import Any
 
@@ -18,9 +18,6 @@ def onSetupParameters(scriptOp: scriptCHOP):
   """
   Called to setup custom parameters for the Script CHOP.
   """
-  page = scriptOp.appendCustomPage('Custom')
-  p = page.appendFloat('Valuea', label='Value A')
-  p = page.appendFloat('Valueb', label='Value B')
   return
 
 def onPulse(par: Any):
@@ -37,13 +34,14 @@ def onCook(scriptOp: scriptCHOP):
   Called when the Script CHOP needs to cook.
   """
   scriptOp.clear()
+  scriptOp.isTimeSlice = False
   scriptOp.numSamples = 1
   src = scriptOp.inputs[0]
   if src is None:
     return
 
+  brightness = min(max(src['bouncitude'][0], 0), 1)
   rgb = [0, 255, 0] # TODO: Generate from inputs
-  energy = 1.0 # TODO: Generate from inputs
 
   numChannels = max(FIXTURE_ADDRS) + FIXTURE_CHANNELS - 1
   values = [0.0] * numChannels
@@ -51,11 +49,11 @@ def onCook(scriptOp: scriptCHOP):
     i = addr - 1
     if DIM is not None:
       values[i + R], values[i + G], values[i + B] = rgb
-      values[i + DIM] = energy * 255
+      values[i + DIM] = brightness * 255
     else:
-      values[i + R] = rgb[0] * energy
-      values[i + G] = rgb[1] * energy
-      values[i + B] = rgb[2] * energy
+      values[i + R] = rgb[0] * brightness
+      values[i + G] = rgb[1] * brightness
+      values[i + B] = rgb[2] * brightness
   
   for k, v in enumerate(values):
     scriptOp.appendChan('dmx%d' % (k + 1))[0] = v
