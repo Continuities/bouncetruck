@@ -9,19 +9,14 @@ scriptOp - the OP which is cooking
 import numpy as np
 from typing import Any
 
+P = op('/bouncetruck').par
+
 # press 'Setup Parameters' in the OP to call this function to re-create the
 # parameters.
 def onSetupParameters(scriptOp: scriptCHOP):
 	"""
 	Called to setup custom parameters for the Script CHOP.
 	"""
-	page = scriptOp.appendCustomPage('Custom')
-	p = page.appendInt('Minlag', label='Min lag')
-	p.default = 5
-	p.min = 0
-	p.clampMin = True
-	p.max = 50
-	p.clampMax = True
 	return
 
 def onPulse(par: Any):
@@ -47,7 +42,7 @@ def onCook(scriptOp: scriptCHOP):
 
 	autocorr = np.correlate(x, x, mode='full')
 	autocorr = autocorr[len(autocorr) // 2:]  # keep zero-lag onward
-	min_lag = int(scriptOp.par.Minlag.eval())  # skip the first few samples (trivial self-match near lag 0)
+	min_lag = int(P.Minlag.eval())  # skip the first few samples (trivial self-match near lag 0)
 	if autocorr[0] == 0:
 		coordination = 0.0
 	else:

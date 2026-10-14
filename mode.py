@@ -8,6 +8,8 @@ scriptOp - the OP which is cooking
 
 from typing import Any
 
+P = op('/bouncetruck').par
+
 _mode_state = 0  # persists across cooks, module-level, no TD dependency tracking
 
 # press 'Setup Parameters' in the OP to call this function to re-create the
@@ -16,19 +18,6 @@ def onSetupParameters(scriptOp: scriptCHOP):
 	"""
 	Called to setup custom parameters for the Script CHOP.
 	"""
-	page = scriptOp.appendCustomPage('Custom')
-	p1 = page.appendFloat('Competitionthreshold', label='Competition Threshold')
-	p1.default = 0.6
-	p1.min = 0
-	p1.clampMin = True
-	p1.max = 1
-	p1.clampMax = True
-	p2 = page.appendFloat('Partythreshold', label='Party Threshold')
-	p2.default = 0.6
-	p2.min = 0
-	p2.clampMin = True
-	p2.max = 1
-	p2.clampMax = True
 	return
 
 def onPulse(par: Any):
@@ -50,8 +39,8 @@ def onCook(scriptOp: scriptCHOP):
 	if input_chop is None:
 		return
 	coordination = input_chop['coordination'][0]
-	high = float(scriptOp.par.Competitionthreshold.eval())
-	low = float(scriptOp.par.Partythreshold.eval())
+	high = float(P.Competitionthreshold.eval())
+	low = float(P.Partythreshold.eval())
 	
 	if _mode_state == 0 and coordination > high:
 		_mode_state = 1
