@@ -10,6 +10,9 @@ class FixtureData:
   hue: float
   brightness: float
 
+def num_fixtures() -> int:
+  return len(FIXTURE_ADDRS)
+
 def fixture_data_to_dmx_values(fixture_data: list[FixtureData]) -> list[float]:
   numChannels = max(FIXTURE_ADDRS) + FIXTURE_CHANNELS - 1
   values = [0.0] * numChannels

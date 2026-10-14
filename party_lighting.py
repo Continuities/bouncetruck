@@ -16,9 +16,7 @@ if folder not in sys.path:
   sys.path.insert(0, folder)
 import dmx
 importlib.reload(dmx)
-from dmx import FIXTURE_ADDRS, FixtureData, append_dmx_script_channels, fixture_data_to_dmx_values
-
-base_colour_angle = 0.0
+from dmx import FixtureData, append_dmx_script_channels, fixture_data_to_dmx_values, num_fixtures
 
 def onCook(scriptOp: scriptCHOP):
   """
@@ -32,11 +30,11 @@ def onCook(scriptOp: scriptCHOP):
   if src is None:
     return
 
-  base_colour_angle += float(P.Colourcyclespeed.eval())
-  modified_angle = base_colour_angle + src['angle'][0] % 360
-  hue = modified_angle / 360.0
-  brightness = min(max(src['bouncitude'][0], 0) + P.Basebrightness.eval(), 1)
-  data = [FixtureData((hue + HUE_OFFSET[i]) % 1, brightness) for i in range(len(FIXTURE_ADDRS))]
+  base_hue = float(src['hue'][0]) % 1.0
+  angle = float(src['angle'][0]) % 360.0
+  modified_hue = (base_hue + angle / 360.0) % 1.0
+  brightness = min(max(src['bouncitude'][0], 0.0) + P.Basebrightness.eval(), 1.0)
+  data = [FixtureData((modified_hue + HUE_OFFSET[i]) % 1, brightness) for i in range(num_fixtures())]
   dmx_values = fixture_data_to_dmx_values(data)
   append_dmx_script_channels(dmx_values, scriptOp)
 
