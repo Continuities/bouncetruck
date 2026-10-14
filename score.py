@@ -10,6 +10,7 @@ import sys
 folder = project.folder
 if folder not in sys.path:
   sys.path.append(folder)
+from printer import print_highscore
 
 MODE_CHOP = 'mode'        # CHOP with truck mode: 0 = party, 1 = competition
 BOUNCITUDE_CHOP = 'crest' # CHOP with bouncitude
@@ -71,6 +72,5 @@ def onFrameEnd(frame: int):
       active = False
       if final_score >= P.Minscore.eval():
         debug("Score is high enough to print!")
-        from printer import print_highscore
         print_highscore(final_score)
   return

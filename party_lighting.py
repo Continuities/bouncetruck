@@ -6,33 +6,19 @@ me - this DAT
 scriptOp - the OP which is cooking
 """
 
-FIXTURE_ADDRS = [1]           # DMX start address of each floodlight
-FIXTURE_CHANNELS = 4          # channels per fixture
-R, G, B, DIM = 0, 1, 2, None  # offsets within a fixture; set DIM = None if no dimmer
+HUE_OFFSET = [0, 0.1, 0.2]    # Colour hue offset for each light
 
 P = op('/bouncetruck').par
 
-from typing import Any
-import colorsys
+import sys, importlib
+folder = project.folder
+if folder not in sys.path:
+  sys.path.insert(0, folder)
+import dmx
+importlib.reload(dmx)
+from dmx import FIXTURE_ADDRS, FixtureData, append_dmx_script_channels, fixture_data_to_dmx_values
 
 base_colour_angle = 0.0
-
-# press 'Setup Parameters' in the OP to call this function to re-create the
-# parameters.
-def onSetupParameters(scriptOp: scriptCHOP):
-  """
-  Called to setup custom parameters for the Script CHOP.
-  """
-  return
-
-def onPulse(par: Any):
-  """
-  Called when a custom pulse parameter is pushed.
-  
-  Args:
-    par: The parameter that was pulsed
-  """
-  return
 
 def onCook(scriptOp: scriptCHOP):
   """
@@ -47,37 +33,10 @@ def onCook(scriptOp: scriptCHOP):
     return
 
   base_colour_angle += float(P.Colourcyclespeed.eval())
-  modified_angle = base_colour_angle + src['angle'] % 360
+  modified_angle = base_colour_angle + src['angle'][0] % 360
   hue = modified_angle / 360.0
-  rgb = colorsys.hsv_to_rgb(hue, 1, 1)
-
   brightness = min(max(src['bouncitude'][0], 0) + P.Basebrightness.eval(), 1)
+  data = [FixtureData((hue + HUE_OFFSET[i]) % 1, brightness) for i in range(len(FIXTURE_ADDRS))]
+  dmx_values = fixture_data_to_dmx_values(data)
+  append_dmx_script_channels(dmx_values, scriptOp)
 
-  numChannels = max(FIXTURE_ADDRS) + FIXTURE_CHANNELS - 1
-  values = [0.0] * numChannels
-  for addr in FIXTURE_ADDRS:
-    i = addr - 1
-    if DIM is not None:
-      values[i + R], values[i + G], values[i + B] = rgb
-      values[i + DIM] = brightness * 255
-    else:
-      values[i + R] = rgb[0] * brightness
-      values[i + G] = rgb[1] * brightness
-      values[i + B] = rgb[2] * brightness
-  
-  for k, v in enumerate(values):
-    scriptOp.appendChan('dmx%d' % (k + 1))[0] = v
-
-def onGetCookLevel(scriptOp: scriptCHOP) -> CookLevel:
-  """
-  Sets the scriptOp's cook level, the conditions necessary to cause a cook.
-
-  Return one of the following:
-    CookLevel.AUTOMATIC - inputs changed and output being used. TD default
-                behavior.
-    CookLevel.ON_CHANGE - inputs changed, output used or not.
-    CookLevel.WHEN_USED - every frame when output is being used
-    CookLevel.ALWAYS - every frame
-  """
-
-  return CookLevel.AUTOMATIC
