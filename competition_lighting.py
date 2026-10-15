@@ -30,7 +30,7 @@ def get_level(force:float) -> int:
   return 0
 
 def get_fixture_data(index: int, base_hue:float, crest:float, dip:float) -> FixtureData:
-  strobe = 0.5 if current_level >= 3 else 0.0
+  strobe = 0.95 if current_level >= 3 else 0.0
   if current_level >= 2 and index == accent_index:
     return FixtureData(accent=True, strobe=strobe)
   brightness = min(max(crest, dip) + P.Basebrightness.eval(), 1.0)
