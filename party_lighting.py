@@ -6,7 +6,7 @@ me - this DAT
 scriptOp - the OP which is cooking
 """
 
-HUE_OFFSET = [0, 0.1, 0.2]    # Colour hue offset for each light
+HUE_OFFSET = [0, 0.1, 0.2, 0.3]    # Colour hue offset for each light
 
 P = op('/bouncetruck').par
 
