@@ -34,7 +34,10 @@ def onCook(scriptOp: scriptCHOP):
   angle = float(src['angle'][0]) % 360.0
   modified_hue = (base_hue + angle / 360.0) % 1.0
   brightness = min(max(src['bouncitude'][0], 0.0) + P.Basebrightness.eval(), 1.0)
-  data = [FixtureData((modified_hue + HUE_OFFSET[i]) % 1, brightness) for i in range(num_fixtures())]
+  data = [FixtureData(
+    hue=(modified_hue + HUE_OFFSET[i]) % 1, 
+    brightness=brightness
+  ) for i in range(num_fixtures())]
   dmx_values = fixture_data_to_dmx_values(data)
   append_dmx_script_channels(dmx_values, scriptOp)
 
