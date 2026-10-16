@@ -12,9 +12,10 @@ if folder not in sys.path:
   sys.path.append(folder)
 from printer import print_highscore
 
-MODE_CHOP = 'mode'   # CHOP with truck mode: 0 = party, 1 = competition
-CREST_CHOP = 'crest' # CHOP with crest
-DIP_CHOP = 'dip'     # CHOP with dip
+MODE_CHOP = 'mode'
+CREST_CHOP = 'crest'
+DIP_CHOP = 'dip'
+SCORE_CHOP = 'score'
 
 P = op('/bouncetruck').par
 
@@ -41,6 +42,11 @@ def onExit():
   """
   return
 
+def setHighScore(score: float):
+  global high_score
+  high_score = score
+  op(SCORE_CHOP).par.value0 = score
+
 def onFrameEnd(frame: int):
   """
   Called at the end of each frame.
@@ -48,7 +54,7 @@ def onFrameEnd(frame: int):
   Args:
     frame: The current frame number
   """
-  global active, high_score, quiet_seconds
+  global active, quiet_seconds
 
   dt = 1.0 / project.cookRate
   quiet_seconds_to_end = P.Quietseconds.eval()
@@ -60,9 +66,9 @@ def onFrameEnd(frame: int):
     if not active:
       debug("Competition started!")
       active = True
-      high_score = 0.0
+      setHighScore(0.0)
     quiet_seconds = 0.0
-    high_score = max(score, high_score)
+    setHighScore(max(score, high_score))
   elif active and mode != 1:
     quiet_seconds += dt
     if quiet_seconds >= quiet_seconds_to_end:
